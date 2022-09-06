@@ -175,9 +175,9 @@ class PatchProvider(object):
         while True:
             self.idxs = np.random.choice(len(ref_batch), batch_size)
             with self._lock:
-                yield torch.Tensor(ref_batch[self.idxs]).cuda(), \
-                      torch.Tensor(pos_batch[self.idxs]).cuda(), \
-                      torch.Tensor(neg_batch[self.idxs]).cuda()
+                yield torch.Tensor(ref_batch[self.idxs]), \
+                      torch.Tensor(pos_batch[self.idxs]), \
+                      torch.Tensor(neg_batch[self.idxs])
 
     def fill_batches(self, ref, pos, neg):
         idx = 0
