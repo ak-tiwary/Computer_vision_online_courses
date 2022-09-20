@@ -1,2 +1,7 @@
 .vscode/settings.json
 .vscode
+.ipynb_checkpoints
+__pycache__
+.DS_Store
+AnnotatedTransformer.ipynb
+.DS_Store
