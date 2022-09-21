@@ -5,3 +5,6 @@ __pycache__
 .DS_Store
 AnnotatedTransformer.ipynb
 .DS_Store
+julia_practice.ipynb
+julia_*
+.gitignore

@@ -3,17 +3,20 @@ module DiscreteCurve
 export DiscreteCurve
 
 using LinearAlgebra
-using WGLMakie
+using GLMakie
 using Plots
 
 using LinearAlgebra
 using SplitApplyCombine
+
+GLMakie.activate!()
 
 # Sample Lissajous curve
 a = 4
 b = 2
 delta = pi / 3
 n = 300
+h = 0.01
 
 t = range(0, stop=2 * pi, length=n)
 x = sin.(a .* t .* delta)
@@ -75,13 +78,14 @@ function problem2cd()
     #print("minimum and maximum = ", minimum(kappa), "     ", maximum(kappa))
 end
 
-function problem2e()
+
+function problem2e(h=h)
     ## Problem 2(e)
     t0 = 0
     t1 = pi * 1.25
-    nsamples = 100
+    nsamples = 300
     # Modify nsteps if your method does not converge
-    nsteps = 200
+    nsteps = 50000
 
     # We provide a few examples of curves to try
     # curveFunction(t) = [cos(t)-cos(3*t).^3 sin(t)-sin(3*t).^3]
@@ -89,18 +93,42 @@ function problem2e()
     curveFunction(t) = [t (t .- t0) .* (t1 .- t)]
     curve = vcat(curveFunction.(range(t0, stop=t1, length=nsamples))...)
 
-    dispcurve = Node(Point2f0.(eachrow(curve)))
-    fig, ax, plt = lines(dispcurve, linewidth=3, figure=(resolution=(1000, 1000),))
+
+    fig = Figure(resolution=(1000, 1000))
+    ax = Axis(fig[1, 1])
+
+    orig = lines!(ax, Point2f.(eachrow(curve)), linewidth=3, color=:crimson, label="Original")
+
+    dispcurve = Observable(Point2f.(eachrow(curve)))
+    final = lines!(ax, dispcurve, linewidth=3, color=:forestgreen, label="Final")
+
+    Legend(fig[1, 2], [orig, final], ["Original", "Final"], labelsize=45)
+
+
+    #fig, ax, plt = lines(dispcurve, linewidth=3, figure=(resolution=(1000, 1000),))
     display(fig)
     for i = 1:nsteps
         ### YOUR CODE HERE TO PERFORM GRADIENT DESCENT ###
-        ### END HOMEWORK PROBLEM ###
-        sleep(1 / 30)
-        dispcurve[] = Point2f0.(eachrow(curve))
+        diff = reduce(hcat, [unit(a - b) for (a, b) in zip(eachrow(curve[2:nsamples, :]), eachrow(curve[1:nsamples-1, :]))])'
+        curve[2:nsamples-1, :] -= [h * (diff[i-1, j] - diff[i, j]) for i in range(2, nsamples - 1), j in range(1, 2)]
+        ### END HOMEWORK PROBLEM ###    
+        sleep(1 / 32)
+        if i % 1000 == 0
+            dispcurve[] = Point2f.(eachrow(curve))
+        end
     end
+
+    save("problem2e.png", fig)
 end
 
-problem2cd()
+
+
+
+
+
+
+problem2e()
+
 
 
 end
